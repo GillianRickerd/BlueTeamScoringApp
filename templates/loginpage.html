@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Scoring Engine{% endblock %}
+
+{% block navbar_elements %}
+<li><a href="overview.html">Overview</a></li>
+{% endblock %}
+
+{% block content %}
+<br><br>
+<form name = "form" action = "login" 
+method = "POST" >{% csrf_token %}
+
+<div style = "max-width:470px;">
+<center> 
+   <input type = "text" style = "margin-left:20%;" 
+	  placeholder = "username" name = "username" />
+</center>
+</div>
+
+<br>
+
+<div style = "max-width:470px;">
+<center>
+   <input type = "password" style = "margin-left:20%;" 
+	  placeholder = "password" name = "password" />
+</center>
+</div>
+
+<br>
+
+<div style = "max-width:470px;">
+<center> 
+
+   <button type = "submit" 
+	  value = "Login" >
+	  <strong>Login</strong>
+   </button>
+   
+</center>
+</div>
+
+</form>
+{% endblock %}

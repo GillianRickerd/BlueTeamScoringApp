@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block navbar_elements %}
+<li><a href="#">Overview</a></li>
+<li><a href="teamhome">Team Home</a></li>
+<li><a href="settings">Settings</a></li>
+{% endblock %}
+{% block navbar_right %}
+<li><a href="logout">Not {{ username }}? Logout</a></li>
+{% endblock %}
+
+{% block content %}
+{% endblock %}

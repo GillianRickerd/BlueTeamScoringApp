@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Team Home{% endblock %}
+
+{% block navbar_elements %}
+<li><a href="#">Overview</a></li>
+<li><a href="teamhome">Team Home</a></li>
+<li><a href="settings">Settings</a></li>
+{% endblock %}
+{% block navbar_right %}
+<li><a href="logout">Not {{ username }}? Logout</a></li>
+{% endblock %}
+
+{% block content %}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Service</th>
+      <th>IP Address</th>
+      <th>Username</th>
+      <th>Password</th>
+      <th>Port</th>
+    </tr>
+  </thead>
+  <tbody>
+	  {% for service in service_list %}
+	 <tr>
+	  <th scope="row"><a href="{{ service.servicename }}In">{{ service.servicename|upper }}</a></th>
+      <td>{{ service.ip_address }}</td>
+      <td>{{ service.username }}</td>
+      <td>{{ service.password }}</td>
+      <td>{{ service.port }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

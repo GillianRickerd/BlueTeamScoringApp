@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block navbar_elements %}
+<li><a href="#">Overview</a></li>
+<li><a href="teamhome">Team Home</a></li>
+<li><a href="settings">Settings</a></li>
+{% endblock %}
+{% block navbar_right %}
+<li><a href="logout">Not {{ username }}? Logout</a></li>
+{% endblock %}
+
+{% block content %}
+
+<form name = "form" action = "addteam" 
+method = "POST" >{% csrf_token %}
+
+   <input type = "text" 
+	  placeholder = "username" name = "username" />
+
+
+   <input type = "password" 
+	  placeholder = "password" name = "password" />
+
+
+
+   <button type = "submit" 
+	  value = "AddTeam" >
+	  <strong>Add Team</strong>
+   </button>
+
+
+</form>
+
+<form name = "form" action = "changepassword" 
+method = "POST" >{% csrf_token %}
+	  
+	  <input type = "password" 
+	  placeholder = "newpassword" name = "password" />
+
+
+
+   <button type = "submit" 
+	  value = "AddTeam" >
+	  <strong>Change Password</strong>
+   </button>
+
+
+</form>
+
+{% endblock %}
