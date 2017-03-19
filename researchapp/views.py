@@ -93,16 +93,16 @@ def setDefaultCreds(teamnumber):
 	dns.teamnumber = teamnumber
 	dns.servicename = "dns"
 	dns.ip_address = '127.0.0.1'
-	dns.username = teamnumber
-	dns.password = teamnumber
+	dns.username = "NA"
+	dns.password = "NA"
 	dns.port = 53
 	dns.save()
 	http = Service()
 	http.teamnumber = teamnumber
 	http.servicename = "http"
 	http.ip_address = '127.0.0.1'
-	http.username = teamnumber
-	http.password = teamnumber
+	http.username = "NA"
+	http.password = "NA"
 	http.port = 80
 	http.save()
 	sql = Service()
@@ -113,7 +113,6 @@ def setDefaultCreds(teamnumber):
 	sql.password = teamnumber
 	sql.port = 3306
 	sql.save()
-	
 	
 def changepassword(request):
 	if request.method == "POST":
@@ -136,7 +135,7 @@ def index(request):
 	return HttpResponse("Hello, world. You're at the research app index.")
 
 def ssh(request):
-	ssh = Service.objects.filter(teamnumber=request.session['username'], servicename="ssh").values()#.get(pk=1)
+	ssh = Service.objects.filter(teamnumber=request.session['username'], servicename="ssh").values()
 	service = ssh[0]
 	runsshtest = sshtest(service['ip_address'], service['username'], service['password'], service['port'])
 	value = runsshtest.sshtest()
@@ -173,14 +172,10 @@ def ftpSave(request):
 			username_ftp = MyFtpData.cleaned_data['username']
 			password_ftp = MyFtpData.cleaned_data['password']
 			port_ftp = MyFtpData.cleaned_data['port']
-			ftp = Service()
-			ftp.teamnumber = request.session['username']
-			ftp.servicename = "ftp"
-			ftp.ip_address = ip_address_ftp
-			ftp.username = username_ftp
-			ftp.password = password_ftp
-			ftp.port = port_ftp
-			ftp.save()
+			Service.objects.filter(teamnumber=request.session['username'], servicename="ftp").update(ip_address=ip_address_ftp)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="ftp").update(username=username_ftp)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="ftp").update(password=password_ftp)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="ftp").update(port=port_ftp)
 	else:
 		MyFtpForm = ServiceForm()		
 	return render(request, 'teamhome.html', {"login_username" : request.session['username'],"ip_address" : ip_address_ftp, "username" : username_ftp, "password" : password_ftp, "port" : port_ftp})
@@ -209,14 +204,10 @@ def httpSave(request):
 			username_http = "NA"
 			password_http = "NA"
 			port_http = MyHttpData.cleaned_data['port']
-			http = Service()
-			http.teamnumber = request.session['username']
-			http.servicename = "http"
-			http.ip_address = ip_address_http
-			http.username = username_http
-			http.password = password_http
-			http.port = port_http
-			http.save()
+			Service.objects.filter(teamnumber=request.session['username'], servicename="http").update(ip_address=ip_address_http)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="http").update(username=username_http)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="http").update(password=password_http)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="http").update(port=port_http)
 	else:
 		MyHttpForm = ServiceFormNoLogin()		
 	return render(request, 'teamhome.html', {"login_username" : request.session['username'], "ip_address" : ip_address_http, "username" : username_http, "password" : password_http, "port" : port_http})
@@ -244,14 +235,10 @@ def dnsSave(request):
 			username_dns = "NA"
 			password_dns = "NA"
 			port_dns = MyDnsData.cleaned_data['port']
-			dns = Service()
-			dns.teamnumber = request.session['username']
-			dns.servicename = "dns"
-			dns.ip_address = ip_address_dns
-			dns.username = username_dns
-			dns.password = password_dns
-			dns.port = port_dns
-			dns.save()
+			Service.objects.filter(teamnumber=request.session['username'], servicename="dns").update(ip_address=ip_address_dns)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="dns").update(username=username_dns)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="dns").update(password=password_dns)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="dns").update(port=port_dns)
 	else:
 		MyDnsForm = ServiceFormNoLogin()		
 	return render(request, 'teamhome.html', {"login_username" : request.session['username'], "ip_address" : ip_address_dns, "username" : username_dns, "password" : password_dns, "port" : port_dns})
@@ -278,14 +265,10 @@ def sqlSave(request):
 			username_sql = MySqlData.cleaned_data['username']
 			password_sql = MySqlData.cleaned_data['password']
 			port_sql = MySqlData.cleaned_data['port']
-			sql = Service()
-			sql.teamnumber = request.session['username']
-			sql.servicename = "sql"
-			sql.ip_address = ip_address_sql
-			sql.username = username_sql
-			sql.password = password_sql
-			sql.port = port_sql
-			sql.save()
+			Service.objects.filter(teamnumber=request.session['username'], servicename="sql").update(ip_address=ip_address_sql)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="sql").update(username=username_sql)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="sql").update(password=password_sql)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="sql").update(port=port_sql)
 	else:
 		MySqlForm = ServiceForm()
 		
@@ -304,17 +287,13 @@ def sshSave(request):
 		MySshData = ServiceForm(request.POST)
 		if MySshData.is_valid():
 			ip_address_ssh = MySshData.cleaned_data['ip_address']
-			username_ssh = MySshData.cleaned_data['username']
+			username_ssh= MySshData.cleaned_data['username']
 			password_ssh = MySshData.cleaned_data['password']
 			port_ssh = MySshData.cleaned_data['port']
-			ssh = Service()
-			ssh.teamnumber = request.session['username']
-			ssh.servicename = "ssh"
-			ssh.ip_address = ip_address_ssh
-			ssh.username = username_ssh
-			ssh.password = password_ssh
-			ssh.port = port_ssh
-			ssh.save()
+			Service.objects.filter(teamnumber=request.session['username'], servicename="ssh").update(ip_address=ip_address_ssh)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="ssh").update(username=username_ssh)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="ssh").update(password=password_ssh)
+			Service.objects.filter(teamnumber=request.session['username'], servicename="ssh").update(port=port_ssh)
 	else:
 		MySshForm = ServiceForm()
 		
