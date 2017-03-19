@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}MySQL Credentials{% endblock %}
+
+{% block navbar_elements %}
+<li><a href="#">Overview</a></li>
+<li><a href="teamhome">Team Home</a></li>
+<li><a href="settings">Settings</a></li>
+{% endblock %}
+{% block navbar_right %}
+<li><a href="logout">Not {{ login_username }}? Logout</a></li>
+{% endblock %}
+
+{% block content %}
+      <form name = "form" action = "sqlSave" 
+         method = "POST" >{% csrf_token %}
+         
+         <div style = "max-width:470px;">
+            <center>
+               <input type = "text" style = "margin-left:20%;" 
+                  placeholder = "ipaddress" name = "ip_address" />
+            </center>
+         </div>
+			
+         <br>
+         
+         <div style = "max-width:470px;">
+            <center> 
+               <input type = "text" style = "margin-left:20%;" 
+                  placeholder = "username" name = "username" />
+            </center>
+         </div>
+			
+         <br>
+         
+         <div style = "max-width:470px;">
+            <center>
+               <input type = "text" style = "margin-left:20%;" 
+                  placeholder = "password" name = "password" />
+            </center>
+         </div>
+			
+         <br>
+         
+         <div style = "max-width:470px;">
+            <center>
+               <input type = "text" style = "margin-left:20%;" 
+                  placeholder = "port" name = "port" />
+            </center>
+         </div>
+			
+         <br>
+         
+         <div style = "max-width:470px;">
+            <center> 
+            
+               <button style = "border:0px; background-color:#4285F4; margin-top:8%;
+                  height:35px; width:80%;margin-left:19%;" type = "submit" 
+                  value = "Login" >
+                  <strong>Submit MySQL Credentials</strong>
+               </button>
+               
+            </center>
+         </div>
+         
+      </form>
+      
+{% endblock %}

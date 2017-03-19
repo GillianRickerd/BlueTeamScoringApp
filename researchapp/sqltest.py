@@ -9,7 +9,7 @@ class sqltest:
 	def sqltest(self):
 		dbstatus = False
 		try:
-			db = MySQLdb.connect("localhost","root","gillylemke15")
+			db = MySQLdb.connect(self.host,self.user,self.password)
 			dbstatus = True
 			db.close()
 		except:

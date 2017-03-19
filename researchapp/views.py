@@ -5,7 +5,7 @@ from ftptest import ftptest
 from httptest import httptest
 from dnstest import dnstest
 from sqltest import sqltest
-from researchapp.forms import ServiceForm, LoginForm
+from researchapp.forms import *
 from researchapp.models import Service, LoginInfo
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
@@ -37,7 +37,7 @@ def login(request):
 			user = authenticate(username=username, password=password)
 			if user is not None:
 				request.session['username'] = username
-				return render(request, 'loggedin.html', {"username" : username })
+				return render(request, 'loggedin.html', {"login_username" : username })
 			else:
 				return render(request, 'loginpage.html')
 	elif request.method == "GET":
@@ -48,12 +48,12 @@ def login(request):
 def formView(request):
 	if request.session.has_key('username'):
 		username = request.session['username']
-		return render(request, 'loggedin.html', {"username" : username })
+		return render(request, 'loggedin.html', {"login_username" : username })
 	else:
 		return render(request, 'loginpage.html')
 		
 def settings(request):
-	return render(request, 'settings.html', {"username" : request.session['username'] })
+	return render(request, 'settings.html', {"login_username" : request.session['username'] })
 	
 def logout(request):
 	try:
@@ -69,7 +69,51 @@ def addteam(request):
 			username = addteamData.cleaned_data['username']
 			password = addteamData.cleaned_data['password']
 			adduser(username, password, blueteam)
-	return render(request, 'settings.html', {"username" : request.session['username'] })
+			setDefaultCreds(username)
+	return render(request, 'settings.html', {"login_username" : request.session['username'] })
+	
+def setDefaultCreds(teamnumber):
+	ftp = Service()
+	ftp.teamnumber = teamnumber
+	ftp.servicename = "ftp"
+	ftp.ip_address = '127.0.0.1'
+	ftp.username = teamnumber
+	ftp.password = teamnumber
+	ftp.port = 21
+	ftp.save()
+	ssh = Service()
+	ssh.teamnumber = teamnumber
+	ssh.servicename = "ssh"
+	ssh.ip_address = '127.0.0.1'
+	ssh.username = teamnumber
+	ssh.password = teamnumber
+	ssh.port = 22
+	ssh.save()
+	dns = Service()
+	dns.teamnumber = teamnumber
+	dns.servicename = "dns"
+	dns.ip_address = '127.0.0.1'
+	dns.username = teamnumber
+	dns.password = teamnumber
+	dns.port = 53
+	dns.save()
+	http = Service()
+	http.teamnumber = teamnumber
+	http.servicename = "http"
+	http.ip_address = '127.0.0.1'
+	http.username = teamnumber
+	http.password = teamnumber
+	http.port = 80
+	http.save()
+	sql = Service()
+	sql.teamnumber = teamnumber
+	sql.servicename = "sql"
+	sql.ip_address = '127.0.0.1'
+	sql.username = teamnumber
+	sql.password = teamnumber
+	sql.port = 3306
+	sql.save()
+	
 	
 def changepassword(request):
 	if request.method == "POST":
@@ -77,7 +121,7 @@ def changepassword(request):
 		if loginData.is_valid():
 			password = loginData.cleaned_data['password']
 			user.set_password('password')
-	return render(request, 'settings.html', {"username" : request.session['username'] })
+	return render(request, 'settings.html', {"login_username" : request.session['username'] })
 			
 def adduser(username, password, group):
 	user = User.objects.create_user(username=username, password=password)
@@ -85,21 +129,16 @@ def adduser(username, password, group):
 	group.user_set.add(user)
 	
 def teamhome(request):
-	#ssh = Service.objects.filter(teamnumber=request.session['username'], servicename="ssh")
-	#print ssh.values()
-	#ftp = Service.objects.filter(teamnumber=request.session['username'], servicename="ftp")
 	services = Service.objects.filter(teamnumber=request.session['username'])
-	#print ftp.values()
-	return render(request, 'teamhome.html', {"username" : request.session['username'], "service_list" : services})
-	#return render(request, 'teamhome.html', {"username" : ssh[0].username, "ip_address" : ssh[0].ip_address, "port" : ssh[0].port, "password" : ssh[0].password, 
-	#"username_ftp" : ftp[0].username, "ip_address_ftp" : ftp[0].ip_address, "port_ftp" : ftp[0].port, "password_ftp" : ftp[0].password})
+	return render(request, 'teamhome.html', {"login_username" : request.session['username'], "service_list" : services})
 
 def index(request):
 	return HttpResponse("Hello, world. You're at the research app index.")
 
 def ssh(request):
-	print "ssh request"
-	runsshtest = sshtest('127.0.0.1', 'gillian', 'gillylemke15', 22)
+	ssh = Service.objects.filter(teamnumber=request.session['username'], servicename="ssh").values()#.get(pk=1)
+	service = ssh[0]
+	runsshtest = sshtest(service['ip_address'], service['username'], service['password'], service['port'])
 	value = runsshtest.sshtest()
 	return value
 		
@@ -112,8 +151,9 @@ def sshStatus(request):
 		return HttpResponse("SSH is not up.")
 		
 def ftp(request):
-	print "ftp request"
-	runftptest = ftptest('127.0.0.1', 'gillian', 'gillylemke15')
+	ftp = Service.objects.filter(teamnumber=request.session['username'], servicename="ftp").values()
+	service = ftp[0]
+	runftptest = ftptest(service['ip_address'], service['username'], service['password'])
 	value = runftptest.ftptest()
 	return value
 		
@@ -142,13 +182,13 @@ def ftpSave(request):
 			ftp.port = port_ftp
 			ftp.save()
 	else:
-		MyFtpForm = ServiceForm()
-	#teamhome(request)
-		
-	return render(request, 'teamhome.html', {"ip_address" : ip_address_ftp, "username" : username_ftp, "password" : password_ftp, "port" : port_ftp})
+		MyFtpForm = ServiceForm()		
+	return render(request, 'teamhome.html', {"login_username" : request.session['username'],"ip_address" : ip_address_ftp, "username" : username_ftp, "password" : password_ftp, "port" : port_ftp})
 		
 def http(request):
-	runhttptest = httptest('127.0.0.1')
+	http = Service.objects.filter(teamnumber=request.session['username'], servicename="http").values()
+	service = http[0]
+	runhttptest = httptest(service['ip_address'])
 	value = runhttptest.httptest()
 	return value
 	
@@ -159,8 +199,33 @@ def httpStatus(request):
 	else:
 		return HttpResponse("HTTP is not up.")
 		
+def httpSave(request):
+	if request.method == "POST":
+		print "got here"
+		MyHttpData = ServiceFormNoLogin(request.POST)
+		if MyHttpData.is_valid():
+			print "valid"
+			ip_address_http = MyHttpData.cleaned_data['ip_address']
+			username_http = "NA"
+			password_http = "NA"
+			port_http = MyHttpData.cleaned_data['port']
+			http = Service()
+			http.teamnumber = request.session['username']
+			http.servicename = "http"
+			http.ip_address = ip_address_http
+			http.username = username_http
+			http.password = password_http
+			http.port = port_http
+			http.save()
+	else:
+		MyHttpForm = ServiceFormNoLogin()		
+	return render(request, 'teamhome.html', {"login_username" : request.session['username'], "ip_address" : ip_address_http, "username" : username_http, "password" : password_http, "port" : port_http})
+		
 def dns(request):
-	rundnstest = dnstest('8.8.8.8', 'jacobrickerd.com')
+	dns = Service.objects.filter(teamnumber=request.session['username'], servicename="dns").values()
+	service = dns[0]
+	print service['teamnumber'] + ".com"
+	rundnstest = dnstest(service['ip_address'], service['teamnumber'] + ".com")
 	value = rundnstest.dnstest()
 	return value
 	
@@ -171,8 +236,30 @@ def dnsStatus(request):
 	else:
 		return HttpResponse("DNS is not up.")
 		
+def dnsSave(request):
+	if request.method == "POST":
+		MyDnsData = ServiceFormNoLogin(request.POST)
+		if MyDnsData.is_valid():
+			ip_address_dns = MyDnsData.cleaned_data['ip_address']
+			username_dns = "NA"
+			password_dns = "NA"
+			port_dns = MyDnsData.cleaned_data['port']
+			dns = Service()
+			dns.teamnumber = request.session['username']
+			dns.servicename = "dns"
+			dns.ip_address = ip_address_dns
+			dns.username = username_dns
+			dns.password = password_dns
+			dns.port = port_dns
+			dns.save()
+	else:
+		MyDnsForm = ServiceFormNoLogin()		
+	return render(request, 'teamhome.html', {"login_username" : request.session['username'], "ip_address" : ip_address_dns, "username" : username_dns, "password" : password_dns, "port" : port_dns})
+		
 def sql(request):
-	runsqltest = sqltest('localhost', 'root', 'gillylemke15')
+	sql = Service.objects.filter(teamnumber=request.session['username'], servicename="sql").values()
+	service = sql[0]
+	runsqltest = sqltest(service['ip_address'], service['username'], service['password'])
 	value = runsqltest.sqltest()
 	return value
 	
@@ -182,6 +269,27 @@ def sqlStatus(request):
 		return HttpResponse("MySQL is up.")
 	else:
 		return HttpResponse("MySQL is not up.")
+		
+def sqlSave(request):
+	if request.method == "POST":
+		MySqlData = ServiceForm(request.POST)
+		if MySqlData.is_valid():
+			ip_address_sql = MySqlData.cleaned_data['ip_address']
+			username_sql = MySqlData.cleaned_data['username']
+			password_sql = MySqlData.cleaned_data['password']
+			port_sql = MySqlData.cleaned_data['port']
+			sql = Service()
+			sql.teamnumber = request.session['username']
+			sql.servicename = "sql"
+			sql.ip_address = ip_address_sql
+			sql.username = username_sql
+			sql.password = password_sql
+			sql.port = port_sql
+			sql.save()
+	else:
+		MySqlForm = ServiceForm()
+		
+	return render(request, 'teamhome.html', {"login_username" : request.session['username'], "ip_address" : ip_address_sql, "username" : username_sql, "password" : password_sql, "port" : port_sql})
 		
 def status(request):
 	toReturn = "SSH Status: ", ssh(request)
@@ -195,28 +303,37 @@ def sshSave(request):
 	if request.method == "POST":
 		MySshData = ServiceForm(request.POST)
 		if MySshData.is_valid():
-			ip_address = MySshData.cleaned_data['ip_address']
-			username = MySshData.cleaned_data['username']
-			password = MySshData.cleaned_data['password']
-			port = MySshData.cleaned_data['port']
+			ip_address_ssh = MySshData.cleaned_data['ip_address']
+			username_ssh = MySshData.cleaned_data['username']
+			password_ssh = MySshData.cleaned_data['password']
+			port_ssh = MySshData.cleaned_data['port']
 			ssh = Service()
 			ssh.teamnumber = request.session['username']
 			ssh.servicename = "ssh"
-			ssh.ip_address = ip_address
-			ssh.username = username
-			ssh.password = password
-			ssh.port = port
+			ssh.ip_address = ip_address_ssh
+			ssh.username = username_ssh
+			ssh.password = password_ssh
+			ssh.port = port_ssh
 			ssh.save()
 	else:
 		MySshForm = ServiceForm()
 		
-	return render(request, 'sshoutput.html', {"ip_address" : ip_address, "username" : username, "password" : password, "port" : port})
+	return render(request, 'teamhome.html', {"login_username" : request.session['username'], "ip_address" : ip_address_ssh, "username" : username_ssh, "password" : password_ssh, "port" : port_ssh})
 	
 def sshIn(request):
-	return render(request, 'sshinput.html')
+	return render(request, 'sshinput.html', {"login_username" : request.session['username']})
 	
 def ftpIn(request):
-	return render(request, 'ftpinput.html')
+	return render(request, 'ftpinput.html', {"login_username" : request.session['username']})
+	
+def httpIn(request):
+	return render(request, 'httpinput.html', {"login_username" : request.session['username']})
+	
+def dnsIn(request):
+	return render(request, 'dnsinput.html', {"login_username" : request.session['username']})
+	
+def sqlIn(request):
+	return render(request, 'sqlinput.html', {"login_username" : request.session['username']})
 	
 def databaseTest(request):
 	ssh = Ssh.objects.get(port=22022)

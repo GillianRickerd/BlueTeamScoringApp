@@ -7,6 +7,10 @@ class ServiceForm(forms.Form):
 	password = forms.CharField(max_length=50)
 	port = forms.IntegerField()
 	
+class ServiceFormNoLogin(forms.Form):
+	ip_address = forms.CharField(max_length=15)
+	port = forms.IntegerField()
+	
 class LoginForm(forms.Form):
 	username = forms.CharField(required=True, max_length=15)
 	password = forms.CharField(required=True, max_length=50)
