@@ -11,6 +11,7 @@ class Service(models.Model):
 	username = models.CharField(max_length=50)
 	password = models.CharField(max_length=50)
 	port = models.IntegerField()
+	status = models.BooleanField()
 	
 	class Meta:
 		db_table = "service"
